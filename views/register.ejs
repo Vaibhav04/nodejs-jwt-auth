@@ -1,0 +1,60 @@
+<h1>Register</h1>
+<%- include('partials/header.ejs') %>
+<form id = "registerForm" method="POST">
+     <label for="username">Name</label>
+     <input type="text" name="username" id="username">
+     <div id="username-error"></div>
+
+     <label for="email">Email</label>
+     <input type="text" name="email" id="email">
+     <div id="email-error"></div>
+
+     <label for="password">Password</label>
+     <input type="text" name="password" id="password">
+     <div id="password-error"></div>
+
+     <button type="submit">Register</button>
+</form>
+
+<script>
+     const form = document.getElementById("registerForm");
+     // Get error fields
+     const usernameError = document.getElementById("username-error");
+     const emailError = document.getElementById("email-error");
+     const passwordError = document.getElementById("password-error");
+
+
+     function getFieldValueById (id) {
+          return document.getElementById(id).value;
+     }
+     form.addEventListener("submit", async function(event) {
+          event.preventDefault();
+          const username = getFieldValueById("username");
+          const email = getFieldValueById("email");
+          const password = getFieldValueById("password");
+
+          // Reset fields
+          usernameError.textContent = "";
+          emailError.textContent = "";
+          passwordError.textContent = "";
+
+          try {
+               const res = await fetch("/auth/register", {
+                    method: "POST",
+                    body: JSON.stringify({username, email, password}),
+                    headers: { "Content-Type": "application/json"}
+               })
+               const data = await res.json();
+               if(data.errors) {
+                    usernameError.textContent = data.errors.username;
+                    emailError.textContent = data.errors.email;
+                    passwordError.textContent = data.errors.password;
+               } else if(data.user) {
+                    location.assign("/welcome")
+               }
+          } catch (error) {
+               console.log(error);
+          }
+     })
+</script>
+<a href="/auth/login"> Login </a>
